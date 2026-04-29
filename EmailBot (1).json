@@ -1,0 +1,284 @@
+{
+  "name": "EmailBot",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "readStatus": "unread",
+          "sender": "jaykhakhar122@gmail.com"
+        },
+        "options": {}
+      },
+      "id": "1926bb03-11f6-4e74-b15a-428fd854a7a7",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        192,
+        64
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YGRFptnFUEYJHzAl",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "98cc19b4-33ae-4f83-9643-53c13136fedd",
+              "leftValue": "={{ $json.labelIds[0] }}",
+              "rightValue": "SENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "e14693a2-57b4-4ebe-8125-7705ca4784cb",
+      "name": "Emails from Existing Contracts",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        368,
+        64
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "07a6d5e2-ffc5-41d8-b69a-abd6860879c0",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              },
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Re:"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "013b490c-1e53-466f-ae0b-a01905a003d0",
+      "name": "Reply",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        512,
+        224
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "content": "## Get and Validate  New Email",
+        "height": 720,
+        "width": 520
+      },
+      "id": "bad02b32-a172-4e6c-bf6f-d865b640a3ed",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -176
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Write the Email Reply",
+        "height": 720,
+        "width": 520,
+        "color": 3
+      },
+      "id": "39eade62-4372-4c2a-b87e-3cae40e48207",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        -176
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Send Reply",
+        "height": 720,
+        "width": 520,
+        "color": 5
+      },
+      "id": "72e31835-d667-4861-ad65-c049ebef7d8c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        -176
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Reply').item.json.id }}",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1424,
+        128
+      ],
+      "id": "82fe889a-b628-4617-b81d-22ae4da7c34e",
+      "name": "Gmail",
+      "webhookId": "c2cd76f1-cf32-49ee-9f53-22504ecc5cb7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YGRFptnFUEYJHzAl",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.subject + '\\n' + $json.text}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are AI Email responder bot. Read the email and reply to the email in short and sweet way"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        832,
+        112
+      ],
+      "id": "081d5cbb-b106-4dbb-82fb-ca0c12e2d2aa",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-3.2-3b-instruct:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        848,
+        352
+      ],
+      "id": "509875e6-2e0a-4bc6-b54c-d0221bd96200",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "7x04gedgU94Vruvd",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Reply": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Emails from Existing Contracts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emails from Existing Contracts": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e4bb5640-c6fa-4112-8f9f-f784032aa740",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "21d4969970d64e7c540ef2da466f8b691d9b215fcae91b2c252672306132ce6c"
+  },
+  "id": "FdXhLrAA6QQLnlg1",
+  "tags": []
+}
