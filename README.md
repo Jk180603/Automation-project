@@ -30,7 +30,7 @@ Generate Response with LLM
 Send Gmail Reply
 ```
 ## n8n workflow
-![Dashboard](n8n_workflow.png)
+![Dashboard](n8n_Workflow.png)
 
 ## Tech Stack
 n8n
